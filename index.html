@@ -1,0 +1,133 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SWYNEX Final IoT Mini Project</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f1f5f9;color:#172033}
+header{background:#10213d;color:white;padding:25px}
+header p{color:#cbd5e1}
+main{max-width:1100px;margin:25px auto;padding:0 16px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px}
+.card{background:white;border-radius:14px;padding:20px;box-shadow:0 3px 12px #0001}
+.label{color:#64748b;font-size:14px}
+.value{font-size:30px;font-weight:bold;margin:12px 0}
+.unit{font-size:15px;color:#64748b}
+.status{color:#15803d}
+.alert{padding:16px;border-radius:10px;background:#dcfce7;color:#166534;margin:20px 0}
+.danger{background:#fee2e2;color:#991b1b}
+button{padding:11px 15px;border:0;border-radius:8px;background:#1d4ed8;color:white;cursor:pointer;margin:4px}
+button:hover{background:#1e40af}
+section{margin:24px 0}
+.panel{background:white;padding:20px;border-radius:12px;overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:12px;border-bottom:1px solid #e2e8f0}
+th{background:#eaf0f8}
+.note{font-size:13px;color:#64748b;line-height:1.6}
+footer{padding:20px;text-align:center;color:#64748b}
+</style>
+</head>
+<body>
+<header>
+<h1>SWYNEX | Final IoT Mini-Project</h1>
+<p>Simulated IoT Monitoring, Visualization & Alert Logic</p>
+</header>
+<main>
+<section>
+<h2>System Overview</h2>
+<p>This project demonstrates how simulated sensor readings can be monitored and checked against configurable alert thresholds.</p>
+<div class="cards">
+<div class="card"><div class="label">Temperature</div><div class="value"><span id="temp">--</span><span class="unit"> °C</span></div></div>
+<div class="card"><div class="label">Humidity</div><div class="value"><span id="hum">--</span><span class="unit"> %</span></div></div>
+<div class="card"><div class="label">Voltage</div><div class="value"><span id="volt">--</span><span class="unit"> V</span></div></div>
+<div class="card"><div class="label">System Status</div><div class="value status" id="status">Starting</div></div>
+</div>
+<div id="alert" class="alert">Loading simulated readings...</div>
+</section>
+
+<section>
+<h2>Alert Logic Demonstration</h2>
+<div class="panel">
+<p>Illustrative thresholds: temperature above <strong>35°C</strong>; voltage below <strong>200V</strong>.</p>
+<button onclick="setMode('normal')">Normal mode</button>
+<button onclick="setMode('hot')">Test high temperature</button>
+<button onclick="setMode('low')">Test low voltage</button>
+<button onclick="setMode('both')">Test both alerts</button>
+</div>
+</section>
+
+<section>
+<h2>Recent Sensor Readings</h2>
+<div class="panel">
+<table>
+<thead><tr><th>Timestamp</th><th>Temperature °C</th><th>Humidity %</th><th>Voltage V</th><th>Status</th></tr></thead>
+<tbody id="rows"></tbody>
+</table>
+</div>
+</section>
+
+<section>
+<h2>Conceptual IoT Architecture</h2>
+<div class="panel">
+<p><strong>Sensor layer</strong> → <strong>Microcontroller (ESP32)</strong> → <strong>Wi-Fi / Network</strong> → <strong>Data storage / processing</strong> → <strong>Web dashboard and alerts</strong></p>
+<p>In a real deployment, sensors may measure environmental or electrical parameters. This project simulates readings in the browser and does not connect to physical sensors.</p>
+</div>
+</section>
+
+<section>
+<h2>Project Limitations</h2>
+<div class="panel">
+<ul>
+<li>All readings are randomly generated in the browser.</li>
+<li>No physical sensors, transformer, ESP32, cloud service, or database are connected.</li>
+<li>Alert thresholds are illustrative and are not validated protection settings.</li>
+<li>This dashboard is an educational prototype, not a safety-critical monitoring or protection system.</li>
+</ul>
+</div>
+</section>
+<p class="note">Final IoT Mini-Project | SWYNEX Virtual Internship | Software simulation only.</p>
+</main>
+<footer>Built for learning and demonstration purposes.</footer>
+<script>
+let mode="normal";
+let historyData=[];
+
+function setMode(nextMode){
+ mode=nextMode;
+ updateDashboard();
+}
+
+function updateDashboard(){
+ let temperature=24+Math.random()*9;
+ let voltage=220+Math.random()*15;
+ if(mode==="hot"||mode==="both") temperature=38+Math.random()*5;
+ if(mode==="low"||mode==="both") voltage=175+Math.random()*15;
+ const humidity=35+Math.random()*35;
+ const t=Number(temperature.toFixed(1));
+ const h=Number(humidity.toFixed(1));
+ const v=Number(voltage.toFixed(1));
+ const alerts=[];
+ if(t>35) alerts.push("High temperature detected!");
+ if(v<200) alerts.push("Low voltage detected!");
+ const state=alerts.length?"Alert":"Normal";
+ document.getElementById("temp").textContent=t;
+ document.getElementById("hum").textContent=h;
+ document.getElementById("volt").textContent=v;
+ document.getElementById("status").textContent=state;
+ const box=document.getElementById("alert");
+ box.textContent=alerts.length?"⚠ "+alerts.join(" "):"✓ All simulated readings are within the configured thresholds.";
+ box.className=alerts.length?"alert danger":"alert";
+ historyData.unshift({time:new Date().toLocaleTimeString(),t,h,v,state});
+ historyData=historyData.slice(0,10);
+ document.getElementById("rows").innerHTML=historyData.map(r=>
+ `<tr><td>${r.time}</td><td>${r.t}</td><td>${r.h}</td><td>${r.v}</td><td>${r.state}</td></tr>`
+ ).join("");
+}
+updateDashboard();
+setInterval(()=>{if(mode==="normal")updateDashboard()},4000);
+</script>
+</body>
+</html>
